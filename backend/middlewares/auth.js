@@ -50,7 +50,7 @@ const restrictTo = (...roles) => {
 };
 
 const requireAdmin = restrictTo('admin');
-const requireSenior = restrictTo('senior', 'admin');
+const requireSenior = restrictTo('senior', 'admin', 'boss');
 const requireJunior = restrictTo('junior', 'senior', 'admin');
 
 module.exports = { 
