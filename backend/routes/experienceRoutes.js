@@ -1,76 +1,130 @@
-const express = require('express');
-const router = express.Router();
+const jwt =
+require('jsonwebtoken');
 
-const { body } = require('express-validator');
+const User =
+require('../models/User');
 
-const {
-  createExperience,
-  getAllExperiences,
-  getExperienceById,
-  updateExperience,
-  deleteExperience,
-  getUserExperiences,
-} = require('../controllers/experienceController');
+exports.protect =
+async(
+req,
+res,
+next
+)=>{
 
-const {
-  protect,
-  requireSenior,
-} = require('../middlewares/auth');
+try{
 
+const token =
 
-// PUBLIC
-router.get('/', getAllExperiences);
+req.headers.authorization
+?.startsWith(
+'Bearer'
+)
 
-// IMPORTANT → BEFORE :id
-router.get(
-  '/user/my-experiences',
-  protect,
-  getUserExperiences
+?
+
+req.headers.authorization
+.split(' ')[1]
+
+:
+
+null;
+
+if(
+!token
+){
+
+return res
+.status(401)
+.json({
+
+message:
+'Not authorized'
+
+});
+
+}
+
+const decoded =
+
+jwt.verify(
+token,
+process.env.JWT_SECRET
 );
 
-// Dynamic route LAST
-router.get('/:id', getExperienceById);
+req.user =
 
-
-// CREATE
-router.post(
-  '/',
-  protect,
-  requireSenior,
-  [
-    body('company').notEmpty().trim(),
-    body('roundType')
-      .isIn([
-        'OT',
-        'Technical',
-        'HR'
-      ]),
-    body('description')
-      .notEmpty()
-      .trim(),
-    body('result')
-      .isIn([
-        'Qualified',
-        'Not Qualified'
-      ]),
-  ],
-  createExperience
+await User
+.findById(
+decoded.id
+)
+.select(
+'-password'
 );
 
+next();
 
-// UPDATE
-router.put(
-  '/:id',
-  protect,
-  updateExperience
-);
+}
+
+catch(err){
+
+res
+.status(401)
+.json({
+
+message:
+'Invalid token'
+
+});
+
+}
+
+};
 
 
-// DELETE
-router.delete(
-  '/:id',
-  protect,
-  deleteExperience
-);
 
-module.exports = router;
+exports.requireSenior =
+(
+
+req,
+res,
+next
+
+)=>{
+
+if(
+
+req.user.role
+===
+
+'senior'
+
+||
+
+req.user.role
+===
+
+'boss'
+
+||
+
+req.user.role
+===
+
+'admin'
+
+){
+
+return next();
+
+}
+
+return res
+.status(403)
+.json({
+
+message:
+'You do not have permission to perform this action'
+
+});
+
+};
