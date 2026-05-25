@@ -1,7 +1,9 @@
-const User=
-require('../models/User');
+const User =
+require(
+"../models/User"
+);
 
-exports.uploadResume=
+exports.uploadResume =
 async(
 req,
 res
@@ -9,42 +11,54 @@ res
 
 try{
 
-if(!req.user){
+if(
+!req.user
+){
 
 return res
 .status(401)
 .json({
+
 message:
-'Login required'
+"Login required"
+
 });
 
 }
 
-if(!req.file){
+if(
+!req.file
+){
 
 return res
 .status(400)
 .json({
+
 message:
-'Choose PDF'
+"Choose PDF"
+
 });
 
 }
 
-const user=
+console.log(
+req.file
+);
+
+const user =
 await User.findById(
 req.user._id
 );
 
-user.resumeUrl=
-req.file.filename;
+user.resumeUrl =
+req.file.path;
 
 await user.save();
 
 res.json({
 
 message:
-'Uploaded',
+"Uploaded",
 
 resume:
 user.resumeUrl
@@ -55,9 +69,12 @@ user.resumeUrl
 
 catch(err){
 
-console.log(err);
+console.log(
+err
+);
 
-res.status(500)
+res
+.status(500)
 .json({
 
 message:
@@ -69,16 +86,33 @@ err.message
 
 };
 
-exports.getResume=
+exports.getResume =
 async(
 req,
 res
 )=>{
 
-const user=
+try{
+
+const user =
 await User.findById(
 req.params.id
 );
+
+if(
+!user
+){
+
+return res
+.status(404)
+.json({
+
+message:
+"User not found"
+
+});
+
+}
 
 res.json({
 
@@ -87,27 +121,49 @@ user.resumeUrl
 
 });
 
+}
+
+catch(err){
+
+res
+.status(500)
+.json({
+
+message:
+err.message
+
+});
+
+}
+
 };
 
 exports.getAllResumes =
-async(req,res)=>{
+async(
+req,
+res
+)=>{
 
 try{
 
 const users =
 await User.find({
 
-role:'senior',
+role:
+"senior",
 
 resumeUrl:{
+
 $exists:true,
+
 $ne:null
+
 }
 
 })
 
 .select(
-'name resumeUrl role'
+"name resumeUrl role"
 );
 
 res.json(
@@ -121,8 +177,10 @@ catch(err){
 res
 .status(500)
 .json({
+
 message:
 err.message
+
 });
 
 }

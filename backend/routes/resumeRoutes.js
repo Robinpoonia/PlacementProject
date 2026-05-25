@@ -1,18 +1,24 @@
 const router =
-require('express')
+require("express")
 .Router();
 
 const upload =
-require('../middlewares/upload');
+require(
+"../middlewares/upload"
+);
 
 const {
+
 uploadResume,
+
 getResume,
+
 getAllResumes
+
 }
 =
 require(
-'../controllers/resumeController'
+"../controllers/resumeController"
 );
 
 const {
@@ -20,28 +26,38 @@ protect
 }
 =
 require(
-'../middlewares/auth'
+"../middlewares/auth"
 );
 
-// Upload resume
 router.post(
-'/',
+
+"/",
+
 protect,
+
 upload.single(
-'resume'
+"resume"
 ),
+
 uploadResume
+
 );
 
 router.get(
-'/resumes',
+
+"/resumes",
+
 getAllResumes
+
 );
 
 router.get(
-'/:id',
+
+"/:id",
+
 getResume
+
 );
 
-module.exports=
+module.exports =
 router;
