@@ -16,7 +16,7 @@ const experienceSchema = new mongoose.Schema(
 
   roundType: {
     type: String,
-    enum: ['OT', 'Technical', 'HR'],
+    enum: ['OT', 'Technical', 'HR','Selected'],
     required: true
   },
 

@@ -1,11 +1,7 @@
-import {
-  BrowserRouter,
-  Routes,
-  Route
-} from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+
 
 import Header from './components/Layout/Header';
-
 import Home from './pages/Home';
 import Experiences from './pages/Experiences';
 import NewExperience from './pages/NewExperience';

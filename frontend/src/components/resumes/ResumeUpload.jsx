@@ -1,123 +1,61 @@
-import {
-useState
-}
-from 'react';
+import { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { uploadResumeAction } from "../../store/slices/ResumeSlice";
+import Loading from "../../components/Layout/Loading";
 
-export default function ResumeUpload(){
+export default function ResumeUpload() {
+  const dispatch = useDispatch();
+  const { uploadLoading } = useSelector((state) => state.resumes);
+  const [file, setFile] = useState(null);
+  const [success, setSuccess] = useState(false);
 
-const[
-file,
-setFile
-]=
-useState();
+  const handleUpload = async () => {
+    if (!file) {
+      alert("Select PDF");
+      return;
+    }
+    
+    try {
+      setSuccess(false); // Reset success state before starting a new upload
+      // .unwrap() allows us to run code specifically when the thunk succeeds
+      await dispatch(uploadResumeAction(file)).unwrap();
+      setSuccess(true);
+      setFile(null); // Clear the selected file from state on success
+    } catch (err) {
+      console.error("Upload failed: ", err);
+    }
+  };
 
-const upload=
-async()=>{
+  if (uploadLoading) {
+    return <Loading text="Uploading Resume..." fullScreen />;
+  }
 
-const user=
-JSON.parse(
-localStorage
-.getItem(
-'user'
-)
-);
+  return (
+    <div className="rounded-2xl bg-[#121a2d] p-8">
+      <h2 className="text-white text-3xl mb-6">Upload Resume</h2>
 
-const data=
-new FormData();
+      {/* Success Message Banner */}
+      {success && (
+        <div className="mb-6 p-4 rounded-xl bg-green-500/10 border border-green-500 text-green-400 text-center font-medium">
+          Resume uploaded successfully!
+        </div>
+      )}
 
-data.append(
-'resume',
-file
-);
+      <input
+        type="file"
+        accept=".pdf"
+        onChange={(e) => {
+          setFile(e.target.files[0]);
+          setSuccess(false); // Hide the success banner if they pick a new file
+        }}
+      />
 
-await fetch(
-
-`${import.meta.env.VITE_API_URL}/api/resume`,
-
-{
-
-method:
-'POST',
-
-headers:{
-
-Authorization:
-`Bearer ${user.token}`
-
-},
-
-body:data
-
-}
-
-);
-
-alert(
-'Uploaded'
-);
-
-};
-
-return(
-
-<div
-className="
-rounded-2xl
-bg-[#121a2d]
-p-8
-"
->
-
-<h2
-className="
-text-white
-text-3xl
-mb-6
-"
->
-
-Upload Resume
-
-</h2>
-
-<input
-
-type="file"
-
-accept=".pdf"
-
-onChange={
-(e)=>
-
-setFile(
-e.target.files[0]
-)
-}
-
-/>
-
-<button
-
-onClick={
-upload
-}
-
-className="
-mt-6
-w-full
-bg-cyan-500
-py-4
-rounded-xl
-"
-
->
-
-Upload
-
-</button>
-
-</div>
-
-);
-
+      <button
+        onClick={handleUpload}
+        className="mt-6 w-full bg-cyan-500 py-4 rounded-xl text-white font-medium hover:bg-cyan-600 transition"
+      >
+        Upload Resume
+      </button>
+    </div>
+  );
 }

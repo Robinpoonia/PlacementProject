@@ -1,544 +1,161 @@
 const Experience = require('../models/Experience');
 
-const createExperience = async (
-req,
-res
-)=>{
+const createExperience = async (req, res) => {
+  try {
+    const experience = await Experience.create({
+      user: req.user._id,
+      company: req.body.company,
+      roundType: req.body.roundType,
+      description: req.body.description,
+      result: req.body.result,
+      nextRoundDetails: req.body.nextRoundDetails,
+      anonymous: true
+    });
 
-try{
+    const populated = await Experience.findById(experience._id)
+      .populate('user', 'name resumeUrl');
 
-const experience =
-await Experience.create({
-
-user:
-req.user._id,
-
-company:
-req.body.company,
-
-roundType:
-req.body.roundType,
-
-description:
-req.body.description,
-
-result:
-req.body.result,
-
-nextRoundDetails:
-req.body.nextRoundDetails,
-
-anonymous:true
-
-});
-
-const populated =
-await Experience
-.findById(
-experience._id
-)
-.populate(
-'user',
-'name resumeUrl'
-);
-
-res
-.status(201)
-.json(
-populated
-);
-
-}
-
-catch(err){
-
-res
-.status(500)
-.json({
-message:
-err.message
-});
-
-}
-
+    res.status(201).json(populated);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
 };
 
+const getAllExperiences = async (req, res) => {
+  try {
+    const { company, roundType } = req.query;
+    const filter = {};
 
+    if (company) filter.company = company;
+    if (roundType) filter.roundType = roundType;
 
-const getAllExperiences =
-async(
-req,
-res
-)=>{
+    const experiences = await Experience.find(filter)
+      .populate('user', 'name resumeUrl')
+      .sort({ createdAt: -1 });
 
-try{
-
-const {
-company,
-roundType
-}
-=
-req.query;
-
-const filter={};
-
-if(company)
-filter.company=
-company;
-
-if(roundType)
-filter.roundType=
-roundType;
-
-const experiences=
-await Experience
-.find(
-filter
-)
-
-.populate(
-'user',
-'name resumeUrl'
-)
-
-.sort({
-createdAt:-1
-});
-
-res.json(
-experiences
-);
-
-}
-
-catch(err){
-
-res
-.status(500)
-.json({
-message:
-err.message
-});
-
-}
-
+    res.json(experiences);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
 };
 
+const getCompanies = async (req, res) => {
+  try {
+    const companies = await Experience.distinct('company');
 
+    const data = await Promise.all(
+      companies.map(async (company) => ({
+        name: company,
+        totalExperiences: await Experience.countDocuments({ company })
+      }))
+    );
 
-const getCompanies =
-async(
-req,
-res
-)=>{
-
-try{
-
-const companies=
-await Experience
-.distinct(
-'company'
-);
-
-const data=
-await Promise.all(
-
-companies.map(
-async(
-company
-)=>({
-
-name:
-company,
-
-totalExperiences:
-
-await Experience
-.countDocuments({
-company
-})
-
-})
-
-)
-
-);
-
-res.json(
-data
-);
-
-}
-
-catch(err){
-
-res
-.status(500)
-.json({
-message:
-err.message
-});
-
-}
-
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
 };
 
+const getCompanyExperiences = async (req, res) => {
+  try {
+    const filter = { company: req.params.companyName };
 
+    if (req.query.roundType) {
+      filter.roundType = req.query.roundType;
+    }
 
-const getCompanyExperiences =
-async(
-req,
-res
-)=>{
+    const data = await Experience.find(filter)
+      .populate('user', 'name resumeUrl')
+      .sort({ createdAt: -1 });
 
-try{
-
-const filter={
-
-company:
-req.params
-.companyName
-
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
 };
 
-if(
-req.query
-.roundType
-){
+const getExperienceById = async (req, res) => {
+  try {
+    const experience = await Experience.findById(req.params.id)
+      .populate('user', 'name resumeUrl');
 
-filter.roundType=
-req.query
-.roundType;
+    if (!experience) {
+      return res.status(404).json({ message: 'Experience not found' });
+    }
 
-}
-
-const data=
-await Experience
-.find(
-filter
-)
-
-.populate(
-'user',
-'name resumeUrl'
-)
-
-.sort({
-createdAt:-1
-});
-
-res.json(
-data
-);
-
-}
-
-catch(err){
-
-res
-.status(500)
-.json({
-message:
-err.message
-});
-
-}
-
+    res.json(experience);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
 };
 
+const updateExperience = async (req, res) => {
+  try {
+    const experience = await Experience.findById(req.params.id);
 
+    if (!experience) {
+      return res.status(404).json({ message: 'Not found' });
+    }
 
-const getExperienceById =
-async(
-req,
-res
-)=>{
+    // Authorization Check
+    if (
+      experience.user.toString() !== req.user._id.toString() &&
+      req.user.role !== 'admin'
+    ) {
+      return res.status(403).json({ message: 'Unauthorized' });
+    }
 
-try{
+    Object.assign(experience, req.body);
+    await experience.save();
 
-const experience=
-await Experience
-
-.findById(
-req.params.id
-)
-
-.populate(
-'user',
-'name resumeUrl'
-);
-
-if(
-!experience
-){
-
-return res
-.status(404)
-.json({
-
-message:
-'Experience not found'
-
-});
-
-}
-
-res.json(
-experience
-);
-
-}
-
-catch(err){
-
-res
-.status(500)
-.json({
-message:
-err.message
-});
-
-}
-
+    res.json(experience);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
 };
 
+const deleteExperience = async (req, res) => {
+  try {
+    const experience = await Experience.findById(req.params.id);
 
+    if (!experience) {
+      return res.status(404).json({ message: 'Not found' });
+    }
 
-const updateExperience =
-async(
-req,
-res
-)=>{
+    // Authorization Check
+    if (
+      experience.user.toString() !== req.user._id.toString() &&
+      req.user.role !== 'admin'
+    ) {
+      return res.status(403).json({ message: 'Unauthorized' });
+    }
 
-try{
-
-const experience=
-await Experience
-.findById(
-req.params.id
-);
-
-if(
-!experience
-){
-
-return res
-.status(404)
-.json({
-message:
-'Not found'
-});
-
-}
-
-if(
-
-experience.user
-.toString()
-
-!==
-
-req.user._id
-.toString()
-
-&&
-
-req.user.role
-!=='admin'
-
-){
-
-return res
-.status(403)
-.json({
-
-message:
-'Unauthorized'
-
-});
-
-}
-
-Object.assign(
-
-experience,
-
-req.body
-
-);
-
-await experience
-.save();
-
-res.json(
-experience
-);
-
-}
-
-catch(err){
-
-res
-.status(500)
-.json({
-message:
-err.message
-});
-
-}
-
+    await Experience.findByIdAndDelete(req.params.id);
+    res.json({ message: 'Deleted' });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
 };
 
+const getUserExperiences = async (req, res) => {
+  try {
+    const data = await Experience.find({ user: req.user._id })
+      .populate('user', 'name resumeUrl')
+      .sort({ createdAt: -1 });
 
-
-const deleteExperience =
-async(
-req,
-res
-)=>{
-
-try{
-
-const experience=
-await Experience
-.findById(
-req.params.id
-);
-
-if(
-!experience
-){
-
-return res
-.status(404)
-.json({
-message:
-'Not found'
-});
-
-}
-
-if(
-
-experience.user
-.toString()
-
-!==
-
-req.user._id
-.toString()
-
-&&
-
-req.user.role
-!=='admin'
-
-){
-
-return res
-.status(403)
-.json({
-
-message:
-'Unauthorized'
-
-});
-
-}
-
-await Experience
-.findByIdAndDelete(
-req.params.id
-);
-
-res.json({
-
-message:
-'Deleted'
-
-});
-
-}
-
-catch(err){
-
-res
-.status(500)
-.json({
-message:
-err.message
-});
-
-}
-
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
 };
 
-
-
-const getUserExperiences =
-async(
-req,
-res
-)=>{
-
-try{
-
-const data=
-await Experience
-
-.find({
-
-user:
-req.user._id
-
-})
-
-.populate(
-'user',
-'name resumeUrl'
-)
-
-.sort({
-createdAt:-1
-});
-
-res.json(
-data
-);
-
-}
-
-catch(err){
-
-res
-.status(500)
-.json({
-message:
-err.message
-});
-
-}
-
-};
-
-
-
-module.exports={
-
-createExperience,
-
-getAllExperiences,
-
-getCompanies,
-
-getCompanyExperiences,
-
-getExperienceById,
-
-updateExperience,
-
-deleteExperience,
-
-getUserExperiences
-
+module.exports = {
+  createExperience,
+  getAllExperiences,
+  getCompanies,
+  getCompanyExperiences,
+  getExperienceById,
+  updateExperience,
+  deleteExperience,
+  getUserExperiences
 };
