@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchResumes } from "../store/slices/resumeSlice";
+import { fetchResumes } from "../store/slices/ResumeSlice";
 import ResumeCard from "../components/resumes/ResumeCard";
 import Loading from "../components/Layout/Loading";
 
