@@ -16,7 +16,7 @@ export default function SignInModal({
 
   window.location.href =
     `${import.meta.env.VITE_API_URL}/api/auth/google`;
-  window.location.href = "http://localhost:5000/api/auth/google";
+  // window.location.href = "http://localhost:5000/api/auth/google";
 };
   return (
     <div className="fixed inset-0 bg-black/60 z-50 flex justify-center items-center">
