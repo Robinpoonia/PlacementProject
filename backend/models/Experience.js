@@ -28,7 +28,7 @@ const experienceSchema = new mongoose.Schema(
   result: {
     type: String,
     enum: ['Qualified', 'Not Qualified'],
-    required: true
+    default: null
   },
 
   nextRoundDetails: String,

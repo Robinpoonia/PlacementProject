@@ -1,63 +1,57 @@
-const router =
-require("express")
-.Router();
+const router = require("express").Router();
 
-const upload =
-require(
-"../middlewares/upload"
-);
+const upload = require("../middlewares/upload");
 
 const {
+  uploadResume,
+  getMyResumes,
+  getResume,
+  setDefaultResume,
+  getAllResumes,
+  deleteResume,
+} = require("../controllers/resumeController");
 
-uploadResume,
+const { protect } = require("../middlewares/auth");
 
-getResume,
-
-getAllResumes
-
-}
-=
-require(
-"../controllers/resumeController"
-);
-
-const {
-protect
-}
-=
-require(
-"../middlewares/auth"
-);
-
+// Upload a new resume
 router.post(
-
-"/",
-
-protect,
-
-upload.single(
-"resume"
-),
-
-uploadResume
-
+  "/",
+  protect,
+  upload.single("resume"),
+  uploadResume
 );
 
+// Get all resumes of logged-in user
 router.get(
-
-"/resumes",
-
-getAllResumes
-
+  "/my",
+  protect,
+  getMyResumes
 );
 
+// Get a resume by ID
 router.get(
-
-"/:id",
-
-getResume
-
+  "/:id",
+  protect,
+  getResume
 );
 
-module.exports =
-router;
+// Make a resume default
+router.put(
+  "/default/:id",
+  protect,
+  setDefaultResume
+);
+router.get(
+  "/",
+  protect,
+  getAllResumes
+);
+
+// Delete a resume
+router.delete(
+  "/:id",
+  protect,
+  deleteResume
+);
+
+module.exports = router;

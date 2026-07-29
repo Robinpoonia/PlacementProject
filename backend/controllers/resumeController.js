@@ -1,188 +1,181 @@
-const User =
-require(
-"../models/User"
-);
+const Resume = require("../models/Resume");
+const getPassingBatch = require("../utils/getPassingBatch");
+const cloudinary = require("cloudinary").v2;
 
-exports.uploadResume =
-async(
-req,
-res
-)=>{
+// Upload Resume
+exports.uploadResume = async (req, res) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({
+        message: "Login required",
+      });
+    }
 
-try{
+    if (!req.file) {
+      return res.status(400).json({
+        message: "Choose PDF",
+      });
+    }
 
-if(
-!req.user
-){
+    const count = await Resume.countDocuments({
+      user: req.user._id,
+    });
 
-return res
-.status(401)
-.json({
+    const resume = await Resume.create({
+      user: req.user._id,
+      title: req.body.title,
+      resumeUrl: req.file.path,
+      publicId: req.file.filename,
+      isDefault: count === 0,
+    });
 
-message:
-"Login required"
+    res.status(201).json({
+      message: "Resume uploaded successfully",
+      resume,
+    });
+  } catch (err) {
+    console.log(err);
 
-});
-
-}
-
-if(
-!req.file
-){
-
-return res
-.status(400)
-.json({
-
-message:
-"Choose PDF"
-
-});
-
-}
-
-console.log(
-req.file
-);
-
-const user =
-await User.findById(
-req.user._id
-);
-
-user.resumeUrl =
-req.file.path;
-
-await user.save();
-
-res.json({
-
-message:
-"Uploaded",
-
-resume:
-user.resumeUrl
-
-});
-
-}
-
-catch(err){
-
-console.log(
-err
-);
-
-res
-.status(500)
-.json({
-
-message:
-err.message
-
-});
-
-}
-
+    res.status(500).json({
+      message: err.message,
+    });
+  }
 };
 
-exports.getResume =
-async(
-req,
-res
-)=>{
+// Get My Resumes
+exports.getMyResumes = async (req, res) => {
+  try {
+    const resumes = await Resume.find({
+      user: req.user._id,
+    })
+      .populate("user", "name role profilePicture")
+      .sort({
+        createdAt: -1,
+      });
 
-try{
+    res.json(resumes);
+  } catch (err) {
+    res.status(500).json({
+      message: err.message,
+    });
+  }
+};
+// Get Resume By Id
+exports.getResume = async (req, res) => {
+  try {
+    const resume = await Resume.findById(req.params.id).populate(
+      "user",
+      "name role profilePicture"
+    );
 
-const user =
-await User.findById(
-req.params.id
-);
+    if (!resume) {
+      return res.status(404).json({
+        message: "Resume not found",
+      });
+    }
 
-if(
-!user
-){
+    res.json(resume);
+  } catch (err) {
+    res.status(500).json({
+      message: err.message,
+    });
+  }
+};
+// Get All Resumes
+exports.getAllResumes = async (req, res) => {
+  try {
+    const resumes = await Resume.find()
+      .populate("user", "name role profilePicture batch")
+      .sort({ createdAt: -1 });
 
-return res
-.status(404)
-.json({
+    res.json(resumes);
+  } catch (err) {
+    res.status(500).json({
+      message: err.message,
+    });
+  }
+};
+// Make Default Resume
+exports.setDefaultResume = async (req, res) => {
+  try {
+    const resume = await Resume.findById(req.params.id);
 
-message:
-"User not found"
+    if (!resume) {
+      return res.status(404).json({
+        message: "Resume not found",
+      });
+    }
 
-});
+    if (resume.user.toString() !== req.user._id.toString()) {
+      return res.status(403).json({
+        message: "Unauthorized",
+      });
+    }
 
-}
+    await Resume.updateMany(
+      {
+        user: req.user._id,
+      },
+      {
+        isDefault: false,
+      }
+    );
 
-res.json({
+    resume.isDefault = true;
 
-resume:
-user.resumeUrl
+    await resume.save();
 
-});
-
-}
-
-catch(err){
-
-res
-.status(500)
-.json({
-
-message:
-err.message
-
-});
-
-}
-
+    res.json({
+      message: "Default resume updated",
+      resume,
+    });
+  } catch (err) {
+    res.status(500).json({
+      message: err.message,
+    });
+  }
 };
 
-exports.getAllResumes =
-async(
-req,
-res
-)=>{
+// Delete Resume
+exports.deleteResume = async (req, res) => {
+  try {
+    const resume = await Resume.findById(req.params.id);
 
-try{
+    if (!resume) {
+      return res.status(404).json({
+        message: "Resume not found",
+      });
+    }
 
-const users =
-await User.find({
+    if (resume.user.toString() !== req.user._id.toString()) {
+      return res.status(403).json({
+        message: "Unauthorized",
+      });
+    }
 
-role:
-"senior",
+    await cloudinary.uploader.destroy(resume.publicId, {
+      resource_type: "raw",
+    });
 
-resumeUrl:{
+    await resume.deleteOne();
 
-$exists:true,
+    const remaining = await Resume.find({
+      user: req.user._id,
+    }).sort({
+      createdAt: 1,
+    });
 
-$ne:null
+    if (remaining.length && !remaining.some((r) => r.isDefault)) {
+      remaining[0].isDefault = true;
+      await remaining[0].save();
+    }
 
-}
-
-})
-
-.select(
-"name resumeUrl role"
-);
-
-res.json(
-users
-);
-
-}
-
-catch(err){
-
-res
-.status(500)
-.json({
-
-message:
-err.message
-
-});
-
-}
-
+    res.json({
+      message: "Resume deleted successfully",
+    });
+  } catch (err) {
+    res.status(500).json({
+      message: err.message,
+    });
+  }
 };

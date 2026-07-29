@@ -1,51 +1,20 @@
-function getRoleFromScholar(
-scholarNo
-){
+function getRoleFromScholar(scholarNo) {
+    const batchYear = Number(`20${scholarNo.slice(0, 2)}`);
 
-const batchYear =
+    const now = new Date();
 
-Number(
-`20${scholarNo.slice(0,2)}`
-);
+    let currentBatch = now.getFullYear();
 
-const now =
-new Date();
+    // Before July, the new batch hasn't joined yet
+    if (now.getMonth() < 6) {
+        currentBatch--;
+    }
 
-let academicYear =
-now.getFullYear();
+    if (batchYear === currentBatch) return "junior";
+    if (batchYear === currentBatch - 1) return "senior";
+    if (batchYear === currentBatch - 2) return "boss";
 
-if(
-now.getMonth()<7
-){
-
-academicYear--;
-
+    return "alumni";
 }
 
-const diff =
-academicYear
--
-batchYear;
-
-if(
-diff<=0
-){
-
-return 'junior';
-
-}
-
-if(
-diff===1
-){
-
-return 'senior';
-
-}
-
-return 'boss';
-
-}
-
-module.exports =
-getRoleFromScholar;
+module.exports = getRoleFromScholar;

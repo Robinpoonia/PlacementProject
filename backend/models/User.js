@@ -1,110 +1,69 @@
-const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs');
+const mongoose = require("mongoose");
 
-const userSchema =
-new mongoose.Schema({
+const userSchema = new mongoose.Schema(
+{
+    email: {
+        type: String,
+        required: true,
+        unique: true,
+        lowercase: true,
+        trim: true
+    },
 
-email:{
-type:String,
-required:true,
-unique:true,
-lowercase:true,
-trim:true
-},
+    googleId: {
+        type: String,
+        unique: true,
+        sparse: true
+    },
 
-password:{
-type:String,
-required:function(){
-return !this.googleId;
-}
-},
+    name: {
+        type: String,
+        required: true,
+        trim: true
+    },
 
-googleId:{
-type:String,
-sparse:true
-},
+    scholarNo: {
+        type: String,
+        required: true,
+        unique: true
+    },
 
-name:{
-type:String,
-required:true,
-trim:true
-},
+    role: {
+        type: String,
+        enum: [
+            "admin",
+            "boss",
+            "senior",
+            "junior",
+            "alumni"
+        ],
+        required: true
+    },
 
-scholarNo:{
-type:String,
-required:true,
-unique:true
-},
+    profilePicture: {
+        type: String,
+        default: ""
+    },
 
-role:{
-type:String,
-enum:[
-'admin',
-'junior',
-'senior',
-'boss'
-],
-required:true
-},
 
-resumeUrl:{
-type:String,
-default:''
-},
-
-isActive:{
-type:Boolean,
-default:true
-}
+    resumeUrl: {
+        type: String,
+        default: ""
+    },
+    batch: {
+        type: Number,
+        required: true,
+    },
+    isActive: {
+        type: Boolean,
+        default: true
+    }
+    
 
 },
 {
-timestamps:true
+    timestamps: true
 }
 );
 
-userSchema.pre(
-'save',
-async function(next){
-
-if(
-!this.isModified(
-'password'
-)
-){
-return next();
-}
-
-if(this.password){
-
-const salt =
-await bcrypt.genSalt(10);
-
-this.password =
-await bcrypt.hash(
-this.password,
-salt
-);
-
-}
-
-next();
-
-}
-);
-
-userSchema.methods.comparePassword =
-async function(password){
-
-return bcrypt.compare(
-password,
-this.password
-);
-
-};
-
-module.exports =
-mongoose.model(
-'User',
-userSchema
-);
+module.exports = mongoose.model("User", userSchema);

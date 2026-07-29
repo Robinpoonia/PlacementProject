@@ -10,6 +10,8 @@ const experienceRoutes = require('./routes/experienceRoutes');
 const companyRoutes = require('./routes/companyRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const resumeRoutes= require('./routes/resumeRoutes');
+const passport = require("./config/passport");
+const session = require("express-session");
 const app = express();
 
 // Database
@@ -25,6 +27,17 @@ app.use(
     credentials: true
   })
 );
+app.use(
+    session({
+        secret: process.env.JWT_SECRET,
+        resave: false,
+        saveUninitialized: false,
+    })
+);
+
+app.use(passport.initialize());
+
+app.use(passport.session());
 
 app.use(express.json());
 
