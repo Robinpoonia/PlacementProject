@@ -1,9 +1,17 @@
 export default function ResumeCard({ item }) {
   return (
     <div className="bg-[#121a2d] rounded-3xl p-6 border border-cyan-500/10">
-      <h2 className="text-3xl font-bold text-white">{item.name}</h2>
-      <p className="text-gray-400 mt-2">Uploaded by Senior</p>
+      <h2 className="text-2xl font-bold text-white">
+        {item.user?.name}
+      </h2>
 
+      <p className="text-gray-400 mt-2">
+        {item.title}
+      </p>
+
+      <p className="text-cyan-400 mt-1">
+        {item.user?.role}
+      </p>
       <button
         onClick={() => {
           // 1. Target the raw resume URL string

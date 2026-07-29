@@ -6,6 +6,7 @@ import Home from './pages/Home';
 import Experiences from './pages/Experiences';
 import NewExperience from './pages/NewExperience';
 import Resume from './pages/Resume';
+import AuthSuccess from "./pages/AuthSuccess";
 
 import PrivateRoute from './components/Auth/PrivateRoute';
 
@@ -28,7 +29,10 @@ export default function App() {
             path="/experiences"
             element={<Experiences />}
           />
-
+          <Route
+            path="/auth-success"
+            element={<AuthSuccess />}
+          />
           <Route
             path="/experiences/new"
             element={

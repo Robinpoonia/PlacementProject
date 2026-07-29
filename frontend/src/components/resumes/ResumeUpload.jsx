@@ -5,24 +5,43 @@ import Loading from "../../components/Layout/Loading";
 
 export default function ResumeUpload() {
   const dispatch = useDispatch();
+
   const { uploadLoading } = useSelector((state) => state.resumes);
+
+  const [title, setTitle] = useState("");
   const [file, setFile] = useState(null);
   const [success, setSuccess] = useState(false);
 
   const handleUpload = async () => {
+    if (!title.trim()) {
+      alert("Enter resume title");
+      return;
+    }
+
     if (!file) {
       alert("Select PDF");
       return;
     }
-    
+
     try {
-      setSuccess(false); // Reset success state before starting a new upload
-      // .unwrap() allows us to run code specifically when the thunk succeeds
-      await dispatch(uploadResumeAction(file)).unwrap();
+      setSuccess(false);
+
+      const formData = new FormData();
+
+      formData.append("title", title);
+      formData.append("resume", file);
+
+      await dispatch(uploadResumeAction(formData)).unwrap();
+
       setSuccess(true);
-      setFile(null); // Clear the selected file from state on success
+
+      setTitle("");
+      setFile(null);
+
+      document.getElementById("resumeInput").value = "";
     } catch (err) {
-      console.error("Upload failed: ", err);
+      console.error(err);
+      alert(err.message || "Upload failed");
     }
   };
 
@@ -32,27 +51,44 @@ export default function ResumeUpload() {
 
   return (
     <div className="rounded-2xl bg-[#121a2d] p-8">
-      <h2 className="text-white text-3xl mb-6">Upload Resume</h2>
 
-      {/* Success Message Banner */}
+      <h2 className="text-3xl text-white mb-6">
+        Upload Resume
+      </h2>
+
       {success && (
-        <div className="mb-6 p-4 rounded-xl bg-green-500/10 border border-green-500 text-green-400 text-center font-medium">
-          Resume uploaded successfully!
+        <div className="mb-6 rounded-xl border border-green-500 bg-green-500/10 p-4 text-center text-green-400">
+          Resume uploaded successfully.
         </div>
       )}
 
       <input
+        type="text"
+        placeholder="Resume Title (Example: Amazon Resume)"
+        value={title}
+        onChange={(e) => setTitle(e.target.value)}
+        className="mb-5 w-full rounded-xl bg-[#071022] p-4 text-white outline-none"
+      />
+
+      <input
+        id="resumeInput"
         type="file"
         accept=".pdf"
         onChange={(e) => {
           setFile(e.target.files[0]);
-          setSuccess(false); // Hide the success banner if they pick a new file
+          setSuccess(false);
         }}
       />
 
+      {file && (
+        <p className="mt-3 text-gray-400">
+          Selected: {file.name}
+        </p>
+      )}
+
       <button
         onClick={handleUpload}
-        className="mt-6 w-full bg-cyan-500 py-4 rounded-xl text-white font-medium hover:bg-cyan-600 transition"
+        className="mt-6 w-full rounded-xl bg-cyan-500 py-4 font-medium text-white hover:bg-cyan-600"
       >
         Upload Resume
       </button>

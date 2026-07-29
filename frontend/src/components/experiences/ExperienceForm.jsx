@@ -1,30 +1,33 @@
-import { useState } from 'react';
+import { useState } from "react";
 
 export default function ExperienceForm() {
   const [loading, setLoading] = useState(false);
   const [preview, setPreview] = useState(null);
 
   const [formData, setFormData] = useState({
-    company: '',
-    roundType: 'OT',
-    description: '',
-    result: 'Qualified',
-    nextRoundDetails: '',
+    company: "",
+    roundType: "OT",
+    description: "",
+    result: "Qualified",
+    nextRoundDetails: "",
   });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
 
     setFormData((prev) => {
-      const updatedData = { ...prev, [name]: value };
+      const updatedData = {
+        ...prev,
+        [name]: value,
+      };
 
-      // If they pick "Selected", wipe out results and next round text fields
-      if (name === 'roundType' && value === 'Selected') {
-        updatedData.result = ''; 
-        updatedData.nextRoundDetails = '';
-      } else if (name === 'roundType' && value !== 'Selected') {
-        // Fallback defaults if they switch back away from "Selected"
-        updatedData.result = 'Qualified';
+      if (name === "roundType") {
+        if (value === "Selected") {
+          updatedData.result = "";
+          updatedData.nextRoundDetails = "";
+        } else {
+          updatedData.result = "Qualified";
+        }
       }
 
       return updatedData;
@@ -36,39 +39,45 @@ export default function ExperienceForm() {
 
     try {
       setLoading(true);
-      const user = JSON.parse(localStorage.getItem('user'));
 
-      if (!user) {
-        alert('Login first');
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        alert("Please login first.");
         return;
       }
 
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/experiences`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${user.token}`,
-        },
-        body: JSON.stringify(formData),
-      });
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/experiences`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(formData),
+        }
+      );
 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || 'Failed');
+        throw new Error(data.message || "Failed to submit experience.");
       }
 
       setPreview(data);
-      alert('Experience Submitted');
+
+      alert("Experience submitted successfully!");
 
       setFormData({
-        company: '',
-        roundType: 'OT',
-        description: '',
-        result: 'Qualified',
-        nextRoundDetails: '',
+        company: "",
+        roundType: "OT",
+        description: "",
+        result: "Qualified",
+        nextRoundDetails: "",
       });
     } catch (err) {
+      console.error(err);
       alert(err.message);
     } finally {
       setLoading(false);
@@ -78,19 +87,19 @@ export default function ExperienceForm() {
   return (
     <div>
       <form onSubmit={handleSubmit} className="space-y-6">
-        
-        {/* COMPANY */}
+
+        {/* Company */}
         <input
           type="text"
           name="company"
+          placeholder="Company"
           value={formData.company}
           onChange={handleChange}
           required
-          placeholder="Company"
           className="w-full rounded-xl bg-[#071022] p-5 text-white outline-none"
         />
 
-        {/* ROUND */}
+        {/* Round */}
         <select
           name="roundType"
           value={formData.roundType}
@@ -103,21 +112,20 @@ export default function ExperienceForm() {
           <option value="Selected">Selected</option>
         </select>
 
-        {/* DESCRIPTION */}
+        {/* Description */}
         <textarea
           name="description"
+          placeholder="Share your interview experience"
           value={formData.description}
           onChange={handleChange}
-          required
           rows={7}
-          placeholder="Share your experience"
+          required
           className="w-full rounded-xl bg-[#071022] p-5 text-white outline-none"
         />
 
-        {/* CONDITIONAL SECTIONS: Only show if round type is NOT 'Selected' */}
-        {formData.roundType !== 'Selected' && (
+        {formData.roundType !== "Selected" && (
           <>
-            {/* RESULT */}
+            {/* Result */}
             <select
               name="result"
               value={formData.result}
@@ -128,39 +136,49 @@ export default function ExperienceForm() {
               <option value="Not Qualified">Not Qualified</option>
             </select>
 
-            {/* NEXT ROUND */}
-            {formData.result === 'Qualified' && (
+            {/* Next Round */}
+            {formData.result === "Qualified" && (
               <textarea
                 name="nextRoundDetails"
+                placeholder="Next round details"
                 value={formData.nextRoundDetails}
                 onChange={handleChange}
                 rows={4}
-                placeholder="Next round details"
                 className="w-full rounded-xl bg-[#071022] p-5 text-white outline-none"
               />
             )}
           </>
         )}
 
-        {/* SUBMIT */}
         <button
           type="submit"
           disabled={loading}
-          className="w-full rounded-xl bg-cyan-500 py-5 text-white text-lg font-bold hover:bg-cyan-600 disabled:opacity-50"
+          className="w-full rounded-xl bg-cyan-500 py-5 text-lg font-bold text-white hover:bg-cyan-600 disabled:opacity-50"
         >
-          {loading ? 'Submitting...' : 'Submit'}
+          {loading ? "Submitting..." : "Submit"}
         </button>
       </form>
 
-      {/* PREVIEW */}
       {preview && (
         <div className="mt-10 rounded-2xl bg-[#101b31] p-8 text-white">
-          <h2 className="text-3xl mb-5">Experience Preview</h2>
-          <p>🏢 {preview.company}</p>
-          <p>🎯 {preview.roundType}</p>
-          <p>¼ {preview.description}</p>
-          {preview.result && <p>✅ {preview.result}</p>}
-          {preview.nextRoundDetails && <p>➡️ {preview.nextRoundDetails}</p>}
+          <h2 className="mb-5 text-3xl font-bold">
+            Experience Preview
+          </h2>
+
+          <p><strong>Company:</strong> {preview.company}</p>
+          <p><strong>Round:</strong> {preview.roundType}</p>
+          <p><strong>Description:</strong> {preview.description}</p>
+
+          {preview.result && (
+            <p><strong>Result:</strong> {preview.result}</p>
+          )}
+
+          {preview.nextRoundDetails && (
+            <p>
+              <strong>Next Round:</strong>{" "}
+              {preview.nextRoundDetails}
+            </p>
+          )}
         </div>
       )}
     </div>
