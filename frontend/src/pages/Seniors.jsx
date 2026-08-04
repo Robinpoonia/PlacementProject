@@ -14,10 +14,10 @@ import {
 } from "../store/slices/seniorSlice";
 
 import SeniorCard
-  from "../components/seniors/SeniorCard";
+  from "../components/Seniors/SeniorCard";
 
 import SeniorProfileModal
-  from "../components/seniors/SeniorProfileModal";
+  from "../components/Seniors/SeniorProfileModal";
 
 import Loading
   from "../components/Layout/Loading";
