@@ -1,7 +1,7 @@
 import { useState } from "react";
 
-import PostSection from "../components/dashboard/PostSection";
-import ResumeSection from "../components/dashboard/ResumeSection";
+import PostSection from "../components/Dashboard/PostSection";
+import ResumeSection from "../components/Dashboard/ResumeSection";
 
 export default function Dashboard() {
 
