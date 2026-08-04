@@ -10,7 +10,7 @@ export default function SignInModal({
   //     `${import.meta.env.VITE_API_URL}/api/auth/google`;
   // };
   const googleLogin = () => {
-  alert("Google button clicked");
+ 
 
   console.log("VITE_API_URL =", import.meta.env.VITE_API_URL);
 

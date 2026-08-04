@@ -48,7 +48,7 @@ export default function ExperienceForm() {
       }
 
       const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/api/experiences`,
+        `${import.meta.env.VITE_API_URL}/api/experience`,
         {
           method: "POST",
           headers: {

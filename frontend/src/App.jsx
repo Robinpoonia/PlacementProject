@@ -7,8 +7,10 @@ import Experiences from './pages/Experiences';
 import NewExperience from './pages/NewExperience';
 import Resume from './pages/Resume';
 import AuthSuccess from "./pages/AuthSuccess";
-
+import Dashboard from './pages/Dashbaord';
 import PrivateRoute from './components/Auth/PrivateRoute';
+import Profile from "./pages/Profile";
+import Seniors from "./pages/Seniors";
 
 export default function App() {
   return (
@@ -41,7 +43,31 @@ export default function App() {
               </PrivateRoute>
             }
           />
-
+          <Route
+            path="/dashboard"
+            element={
+              <PrivateRoute role={[ "senior", "boss", "admin"]}>
+                <Dashboard />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/students"
+            element={
+              <PrivateRoute role={[ "senior", "boss", "admin","alumni"]}>
+                <Seniors />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/profile"
+            element={
+              <PrivateRoute role={["junior", "senior", "boss", "alumni"]}>
+                <Profile />
+              </PrivateRoute>
+            }
+          />
+          
           <Route
             path="/resume"
             element={

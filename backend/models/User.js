@@ -40,6 +40,11 @@ const userSchema = new mongoose.Schema(
         required: true
     },
 
+    phone: {
+  type: String,
+  trim: true,
+  default: "",
+},
     profilePicture: {
         type: String,
         default: ""
@@ -54,6 +59,17 @@ const userSchema = new mongoose.Schema(
         type: Number,
         required: true,
     },
+    selectedCompany: {
+  type: String,
+  trim: true,
+  default: "",
+},
+
+package: {
+  type: Number,
+  min: 0,
+  default: null,
+},
     isActive: {
         type: Boolean,
         default: true

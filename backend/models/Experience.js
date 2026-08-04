@@ -37,7 +37,11 @@ const experienceSchema = new mongoose.Schema(
     type: Boolean,
     default: true
   },
-
+  resume: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Resume",
+    default: null
+},
   helpfulCount: {
     type: Number,
     default: 0

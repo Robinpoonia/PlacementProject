@@ -9,11 +9,17 @@ const authRoutes = require('./routes/authRoutes');
 const experienceRoutes = require('./routes/experienceRoutes');
 const companyRoutes = require('./routes/companyRoutes');
 const adminRoutes = require('./routes/adminRoutes');
+const dashboardRoutes = require('./routes/dashboardRoutes');
 const resumeRoutes= require('./routes/resumeRoutes');
 const passport = require("./config/passport");
 const session = require("express-session");
+const userRoutes = require("./routes/userRoutes");
 const app = express();
-
+const dns = require('dns');
+dns.setServers([
+	'1.1.1.1',
+	'8.8.8.8'
+])
 // Database
 connectDB();
 
@@ -55,13 +61,14 @@ express.static(
 'uploads'
 )
 );
+app.use("/api/users", userRoutes);
 
 app.use(
 '/api/resume',
 resumeRoutes
 );
 app.use(
-  '/api/experiences',
+  '/api/experience',
   experienceRoutes
 );
 
@@ -74,6 +81,7 @@ app.use(
   '/api/admin',
   adminRoutes
 );
+app.use("/api/dashboard", dashboardRoutes);
 
 
 // Health check

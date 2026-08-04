@@ -38,7 +38,7 @@ export default function Experiences() {
   const fetchData = async () => {
     try {
       setLoading(true); // Trigger loading fallback if fetched again
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/experiences`);
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/experience`);
       const data = await res.json();
       setAll(data);
       setFiltered(data);
