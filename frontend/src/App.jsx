@@ -29,7 +29,10 @@ export default function App() {
 
           <Route
             path="/experiences"
-            element={<Experiences />}
+            element={
+            <PrivateRoute role={["junior", "senior", "boss", "alumni"]}>
+                <Experiences />
+              </PrivateRoute>}
           />
           <Route
             path="/auth-success"
@@ -38,7 +41,7 @@ export default function App() {
           <Route
             path="/experiences/new"
             element={
-              <PrivateRoute role="senior">
+              <PrivateRoute role={["senior", "boss", "alumni"]}>
                 <NewExperience />
               </PrivateRoute>
             }
@@ -72,7 +75,7 @@ export default function App() {
             path="/resume"
             element={
               <PrivateRoute
-                role={['junior', 'senior']}
+                role={['junior', 'senior', "boss","alumni"]}
               >
                 <Resume />
               </PrivateRoute>
