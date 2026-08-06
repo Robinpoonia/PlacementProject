@@ -134,9 +134,7 @@ export default function ExperienceCard({ experience }) {
               Round: {experience.roundType}
             </p>
 
-            <p className="text-white mt-3">
-              Author: {experience.user?.name || "Unknown"}
-            </p>
+          
 
             {/* DESCRIPTION */}
 

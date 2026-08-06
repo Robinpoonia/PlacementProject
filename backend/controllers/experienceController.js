@@ -33,7 +33,7 @@ const getAllExperiences = async (req, res) => {
     if (roundType) filter.roundType = roundType;
 
     const experiences = await Experience.find(filter)
-      .populate("user", "name role batch profilePicture")
+      .populate("user", "role batch profilePicture")
       .populate("resume", "title resumeUrl isDefault")
       .sort({ createdAt: -1 });
 
@@ -71,7 +71,7 @@ const getCompanyExperiences = async (req, res) => {
     }
 
     const data = await Experience.find(filter)
-      .populate("user", "name role batch profilePicture")
+      .populate("user", "role batch profilePicture")
       .populate("resume", "title resumeUrl isDefault")
       .sort({ createdAt: -1 });
 
@@ -84,7 +84,7 @@ const getCompanyExperiences = async (req, res) => {
 const getExperienceById = async (req, res) => {
   try {
     const experience = await Experience.findById(req.params.id)
-      .populate("user", "name role batch profilePicture")
+      .populate("user", " role batch profilePicture")
       .populate("resume", "title resumeUrl isDefault");
 
     if (!experience) {

@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import {
-  fetchResumes,
+  fetchMyResumes,
   deleteResumeAction,
   setDefaultResumeAction,
 } from "../../store/slices/ResumeSlice";
@@ -25,7 +25,7 @@ export default function ResumeSection() {
   // =====================================================
 
   useEffect(() => {
-    dispatch(fetchResumes());
+    dispatch(fetchMyResumes());
   }, [dispatch]);
 
   // =====================================================

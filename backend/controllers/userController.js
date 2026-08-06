@@ -217,17 +217,17 @@ exports.uploadProfilePicture = async (
     });
   }
 };
-
-
 // ============================================
-// GET ALL SENIORS
+// GET ALL SENIORS / BOSS / ALUMNI
 // GET /api/users/seniors
 // ============================================
 
 exports.getAllSeniors = async (req, res) => {
   try {
     const seniors = await User.find({
-      role: "senior",
+      role: {
+        $in: ["senior", "boss", "alumni"],
+      },
       isActive: true,
     })
       .select(
@@ -238,7 +238,7 @@ exports.getAllSeniors = async (req, res) => {
         name: 1,
       });
 
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
       count: seniors.length,
       users: seniors,
@@ -246,7 +246,7 @@ exports.getAllSeniors = async (req, res) => {
   } catch (error) {
     console.error("GET SENIORS ERROR:", error);
 
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: "Failed to fetch seniors",
     });

@@ -229,10 +229,6 @@ export default function SeniorProfileModal({
         </div>
 
 
-        {/* EXPERIENCE BUTTON */}
-
-        <LinkButton senior={senior} />
-
       </div>
 
     </div>
@@ -240,35 +236,3 @@ export default function SeniorProfileModal({
   );
 }
 
-
-// ============================================
-// BUTTON
-// ============================================
-
-function LinkButton({ senior }) {
-
-  return (
-
-    <a
-      href={`/experiences?senior=${senior._id}`}
-      className="
-        block
-        mt-8
-        w-full
-        bg-cyan-500
-        hover:bg-cyan-600
-        text-white
-        font-semibold
-        text-center
-        py-4
-        rounded-xl
-        transition
-      "
-    >
-
-      View Interview Experiences →
-
-    </a>
-
-  );
-}

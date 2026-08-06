@@ -13,7 +13,11 @@ const {
 
 const { protect } = require("../middlewares/auth");
 
-// Upload a new resume
+// =====================================================
+// UPLOAD RESUME
+// POST /api/resumes
+// =====================================================
+
 router.post(
   "/",
   protect,
@@ -21,33 +25,55 @@ router.post(
   uploadResume
 );
 
-// Get all resumes of logged-in user
+// =====================================================
+// GET LOGGED-IN USER'S RESUMES
+// GET /api/resumes/my
+// =====================================================
+
 router.get(
   "/my",
   protect,
   getMyResumes
 );
 
-// Get a resume by ID
-router.get(
-  "/:id",
-  protect,
-  getResume
-);
+// =====================================================
+// GET ALL RESUMES
+// GET /api/resumes
+// =====================================================
 
-// Make a resume default
-router.put(
-  "/default/:id",
-  protect,
-  setDefaultResume
-);
 router.get(
   "/",
   protect,
   getAllResumes
 );
 
-// Delete a resume
+// =====================================================
+// SET DEFAULT RESUME
+// PUT /api/resumes/default/:id
+// =====================================================
+
+router.put(
+  "/default/:id",
+  protect,
+  setDefaultResume
+);
+
+// =====================================================
+// GET ONE RESUME
+// GET /api/resumes/:id
+// =====================================================
+
+router.get(
+  "/:id",
+  protect,
+  getResume
+);
+
+// =====================================================
+// DELETE RESUME
+// DELETE /api/resumes/:id
+// =====================================================
+
 router.delete(
   "/:id",
   protect,
